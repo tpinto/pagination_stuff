@@ -1,0 +1,19 @@
+PaginationStuff
+===============
+
+Simple pagination
+
+
+Example
+=======
+
+class RandomController < ApplicationController
+  pagination_stuff :index
+
+  def index
+    @stuff = Stuff.find(:all, @pagination_stuff)
+  end
+end
+
+
+Copyright (c) 2009 Tiago Pinto, released under the MIT license
