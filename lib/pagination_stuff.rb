@@ -5,12 +5,12 @@ module PaginationStuff
     def pagination_stuff(*actions)
       opts = (Hash === actions.last ? actions.pop : {:limit => 5})
       define_method "set_pagination_vars" do
-        @limit = (params[:limit] || opts[:limit]).to_i
-        @offset = (params[:offset] || 0).to_i
+        @paginantion_limit = (params[:limit] || opts[:limit]).to_i
+        @paginantion_offset = (params[:offset] || 0).to_i
 
         @pagination_stuff = {
-          :limit => @limit,
-          :offset => @offset
+          :limit =>   @paginantion_limit,
+          :offset =>  @paginantion_offset
         }
       end
 
@@ -23,10 +23,14 @@ module PaginationStuff
   # intended to:
   # ActionView::Base.send :include, PaginationStuff::ViewStuff::ClassMethods
   module ViewStuff
-    def pagination_stuff(size, offset, limit)
-      return "" if [size,offset,limit].include?(nil)
+    def pagination_stuff(array)
+      return "" if array.nil? or array.empty?
       
       out = ""
+      
+      offset = eval("@offset")
+      limit = eval("@limit")
+      size = array.size
       
       prev_offset = offset - limit
       prev_offset = nil if prev_offset <= 0
