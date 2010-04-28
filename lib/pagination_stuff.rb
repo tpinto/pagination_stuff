@@ -5,12 +5,14 @@ module PaginationStuff
     def pagination_stuff(*actions)
       opts = (Hash === actions.last ? actions.pop : {:limit => 5})
       define_method "set_pagination_vars" do
-        @paginantion_limit = (params[:limit] || opts[:limit]).to_i
-        @paginantion_offset = (params[:offset] || 0).to_i
+        @pagination_limit = (params[:limit] || opts[:limit]).to_i
+        @pagination_page = (params[:page] || 1).to_i
+        
+        @pagination_offset = (@pagination_page*@pagination_limit) - @pagination_limit
 
         @pagination_stuff = {
-          :limit =>   @paginantion_limit,
-          :offset =>  @paginantion_offset
+          :limit =>   @pagination_limit,
+          :offset =>  @pagination_offset
         }
       end
 
@@ -28,19 +30,20 @@ module PaginationStuff
       
       out = ""
       
-      offset = eval("@offset")
-      limit = eval("@limit")
+      offset  = @pagination_offset
+      limit   = @pagination_limit
+      page    = @pagination_page
       size = array.size
       
-      prev_offset = offset - limit
-      prev_offset = nil if prev_offset <= 0
-      
-      if offset > 0
-        prev_link = link_to("&larr;&nbsp;prev", :offset => prev_offset, :limit => limit)
+      prev_page = @pagination_page-1
+      next_page = @pagination_page+1
+
+      if @pagination_page > 1
+        prev_link = link_to("&larr;&nbsp;prev", :page => (prev_page > 1 ? prev_page : nil), :limit => (params[:limit] ? limit : nil))
       end
 
       if size > 0 and size >= limit
-        next_link = link_to("next&nbsp;&rarr;", :offset => offset+limit, :limit => limit)
+        next_link = link_to("next&nbsp;&rarr;", :page => @pagination_page+1, :limit => (params[:limit] ? limit : nil))
       end
       
       out << prev_link if prev_link
